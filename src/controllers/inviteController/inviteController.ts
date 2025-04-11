@@ -5,7 +5,7 @@ import resendMail from "../../utils/resend/resendMail.js";
 // send invite controller
 export const sendInviteController = async (req: any, res: any) => {
   const { email } = req.body;
-  const token = crypto.randomBytes(24).toString("hex");
+  const token = crypto.randomBytes(12).toString("hex");
   const inviteLink = `${process.env.FRONTEND_URL}/invite?token=${token}`;
 
   try {
@@ -54,8 +54,6 @@ export const sendInviteController = async (req: any, res: any) => {
 export const verifiyInviteController = async (req: any, res: any) => {
   const { token } = req.query;
 
-  console.log(token, "token");
-
   try {
     const { data, error } = await supabase
       .from("invites")
@@ -80,7 +78,7 @@ export const verifiyInviteController = async (req: any, res: any) => {
 
 // complete invite controller
 export const completeInviteController = async (req: any, res: any) => {
-  const { token, userEmail, userId } = req.body;
+  const { token, userEmail } = req.body;
 
   try {
     const { data: invite } = await supabase
@@ -93,20 +91,25 @@ export const completeInviteController = async (req: any, res: any) => {
     if (!invite || invite.email !== userEmail) {
       await supabase
         .from("users")
-        .update({ role: "wrong_user" })
-        .eq("id", userId);
+        .update({ role: "users" })
+        .eq("email", userEmail);
 
       return res
         .status(400)
         .json({ status: "fail", data: "Invite email mismatch" });
     }
 
+    // invite status update
     await supabase
       .from("invites")
       .update({ status: "accepted" })
       .eq("id", invite.id);
 
-    await supabase.from("users").update({ role: "user" }).eq("id", userId);
+    // user role update
+    await supabase
+      .from("users")
+      .update({ role: "client" })
+      .eq("email", userEmail);
 
     return res.status(200).json({ status: "success", data: "Invite accepted" });
   } catch (error) {
