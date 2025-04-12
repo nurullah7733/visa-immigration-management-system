@@ -50,7 +50,7 @@ export const sendInviteController = async (req: any, res: any) => {
   }
 };
 
-// verify invite controller
+// verify invite controller check emailToken == database inviteToken
 export const verifiyInviteController = async (req: any, res: any) => {
   const { token } = req.query;
 
@@ -76,7 +76,7 @@ export const verifiyInviteController = async (req: any, res: any) => {
   }
 };
 
-// complete invite controller
+// complete invite controller check token and (inviteEmail == userEmail) and then update invite status to accepted
 export const completeInviteController = async (req: any, res: any) => {
   const { token, userEmail } = req.body;
 
@@ -89,14 +89,9 @@ export const completeInviteController = async (req: any, res: any) => {
       .single();
 
     if (!invite || invite.email !== userEmail) {
-      await supabase
-        .from("users")
-        .update({ role: "users" })
-        .eq("email", userEmail);
-
       return res
         .status(400)
-        .json({ status: "fail", data: "Invite email mismatch" });
+        .json({ status: "fail", data: "Invite token or email mismatch" });
     }
 
     // invite status update
@@ -104,12 +99,6 @@ export const completeInviteController = async (req: any, res: any) => {
       .from("invites")
       .update({ status: "accepted" })
       .eq("id", invite.id);
-
-    // user role update
-    await supabase
-      .from("users")
-      .update({ role: "client" })
-      .eq("email", userEmail);
 
     return res.status(200).json({ status: "success", data: "Invite accepted" });
   } catch (error) {
