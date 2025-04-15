@@ -1,17 +1,43 @@
 import {
   deleteFileToDrive,
   getOrCreateFolder,
+  listAllUsersFolder,
+  listFilesFromDrive,
   updateFileToDrive,
   uploadToDrive,
 } from "../../utils/gDrive/gDrive.js";
 import fs from "fs";
 
+// list files from google drive
+export const gDriveAllUsersFoldersListController = async (
+  req: any,
+  res: any
+) => {
+  try {
+    const folderId = process.env.CENTRAL_FOLDER_ID || "";
+    const listResult = await listAllUsersFolder(folderId);
+    return res.status(200).json({ status: "success", data: listResult });
+  } catch (error: any) {
+    return res.status(400).json({ status: "fail", data: error?.errors });
+  }
+};
+// list files from google drive
+export const gDriveAUserFileListController = async (req: any, res: any) => {
+  const { folderId } = req.params;
+  try {
+    const listResult = await listFilesFromDrive(folderId);
+    return res.status(200).json({ status: "success", data: listResult });
+  } catch (error: any) {
+    return res.status(400).json({ status: "fail", data: error?.errors });
+  }
+};
+
 // upload file to google drive
 export const gDriveFileUploadController = async (req: any, res: any) => {
   const file = req.file;
-  const { userEmail, field } = req.body;
+  const { userEmail, formField } = req.body;
 
-  if (!file || !userEmail || !field) {
+  if (!file || !userEmail || !formField) {
     if (!file) {
       return res.status(400).json({
         status: "fail",
@@ -22,22 +48,22 @@ export const gDriveFileUploadController = async (req: any, res: any) => {
         status: "fail",
         data: "Missing email",
       });
-    } else if (!field) {
+    } else if (!formField) {
       return res.status(400).json({
         status: "fail",
-        data: "Missing field",
+        data: "Missing formField",
       });
     } else {
       return res.status(400).json({
         status: "fail",
-        data: "Missing file, email, or field info",
+        data: "Missing file, email, or formField info",
       });
     }
   }
 
   try {
     const parentFolderId = await getOrCreateFolder(userEmail);
-    const fileName = `${field}_${file.originalname}`;
+    const fileName = `${formField}_${file.originalname}`;
 
     if (!parentFolderId) {
       return res
@@ -48,7 +74,8 @@ export const gDriveFileUploadController = async (req: any, res: any) => {
     const uploadedFile = await uploadToDrive(
       file.path,
       fileName,
-      parentFolderId
+      parentFolderId,
+      formField
     );
 
     // Clean local temp file
@@ -60,7 +87,7 @@ export const gDriveFileUploadController = async (req: any, res: any) => {
         driveFileId: uploadedFile.id,
         webViewLink: uploadedFile.webViewLink,
         name: uploadedFile.name,
-        field,
+        formField,
         userEmail,
       },
     });

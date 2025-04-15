@@ -14,13 +14,19 @@ const drive = google.drive({ version: "v3", auth });
 export const uploadToDrive = async (
   filePath: string,
   fileName: string,
-  parentFolderId: string
+  parentFolderId: string,
+  formField: string // e.g. 'resume', 'passport'
 ) => {
   const mimeType = mime.lookup(filePath) || "application/octet-stream";
 
+  const fileNameWithoutSpace = fileName.replace(/ /g, "-");
+
   const fileMetadata = {
-    name: fileName,
+    name: fileNameWithoutSpace,
     parents: [parentFolderId],
+    appProperties: {
+      formField,
+    },
   };
 
   const media = {
@@ -31,7 +37,7 @@ export const uploadToDrive = async (
   const response = await drive.files.create({
     requestBody: fileMetadata,
     media,
-    fields: "id, webViewLink, webContentLink, name",
+    fields: "id, webViewLink, webContentLink, name, appProperties",
   });
 
   return response.data;
@@ -69,6 +75,28 @@ export const deleteFileToDrive = async (fileId: string) => {
   });
 
   return response.status === 204;
+};
+
+// list files from google drive
+export const listFilesFromDrive = async (parentFolderId: string) => {
+  const response = await drive.files.list({
+    q: `'${parentFolderId}' in parents and trashed = false`,
+    fields:
+      "files(id, name, mimeType, webViewLink, webContentLink, appProperties)",
+    spaces: "drive",
+  });
+
+  return response.data.files;
+};
+// list all users folder from google drive
+export const listAllUsersFolder = async (parentFolderId: string) => {
+  const response = await drive.files.list({
+    q: `'${parentFolderId}' in parents and trashed = false`,
+    fields: "files(id, name, createdTime)",
+    spaces: "drive",
+  });
+
+  return response.data.files;
 };
 
 // get or create folder

@@ -6,9 +6,11 @@ import {
   verifiyInviteController,
 } from "../controllers/inviteController/inviteController.js";
 import {
+  gDriveAUserFileListController,
   gDriveFileDeleteController,
   gDriveFileUpdateController,
   gDriveFileUploadController,
+  gDriveAllUsersFoldersListController,
 } from "../controllers/gDriveFileUploadController/gDriveFileUploadController.js";
 import { singleFileUpload } from "../middlewares/multerMiddleware.js";
 
@@ -29,7 +31,11 @@ router.post(
   singleFileUpload,
   gDriveFileUpdateController
 );
-// gdrive file update routes
+// gdrive file delete routes
 router.get("/gdrive/file/delete/:fileId", gDriveFileDeleteController);
+// gdrive file list routes
+router.get("/gdrive/file/a-user-list/:folderId", gDriveAUserFileListController);
+// gdrive file list routes
+router.get("/gdrive/file/all-folder-list", gDriveAllUsersFoldersListController);
 
 export default router;
