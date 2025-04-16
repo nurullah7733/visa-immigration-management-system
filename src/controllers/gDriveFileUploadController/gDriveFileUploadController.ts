@@ -5,7 +5,7 @@ import {
   listFilesFromDrive,
   updateFileToDrive,
   uploadToDrive,
-} from "../../utils/gDrive/gDrive.js";
+} from "../../services/gDrive/gDrive.js";
 import fs from "fs";
 
 // list files from google drive
@@ -100,11 +100,11 @@ export const gDriveFileUploadController = async (req: any, res: any) => {
 // update file to google drive
 export const gDriveFileUpdateController = async (req: any, res: any) => {
   const file = req.file;
-  const { fileId } = req.body;
+  const { fileId, formField } = req.body;
 
   // newFileName
 
-  if (!file || !fileId) {
+  if (!file || !fileId || !formField) {
     if (!file) {
       return res.status(400).json({
         status: "fail",
@@ -115,6 +115,11 @@ export const gDriveFileUpdateController = async (req: any, res: any) => {
         status: "fail",
         data: "Missing fileId",
       });
+    } else if (!formField) {
+      return res.status(400).json({
+        status: "fail",
+        data: "Missing formField",
+      });
     } else {
       return res.status(400).json({
         status: "fail",
@@ -124,14 +129,18 @@ export const gDriveFileUpdateController = async (req: any, res: any) => {
   }
 
   try {
-    const newFileName = file.originalname;
+    const newFileName = `${formField}_${file.originalname}`;
     const newFilePath = file.path;
 
     const updatedFileResult = await updateFileToDrive(
       fileId,
       newFilePath,
-      newFileName
+      newFileName,
+      formField
     );
+
+    // Clean local temp file
+    fs.unlinkSync(file.path);
 
     return res.status(200).json({
       status: "success",

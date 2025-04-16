@@ -47,10 +47,16 @@ export const uploadToDrive = async (
 export const updateFileToDrive = async (
   fileId: string,
   newFilePath: string,
-  newFileName: string
+  newFileName: string,
+  formField: string // e.g. 'resume', 'passport'
 ) => {
+  const fileNameWithoutSpace = newFileName.replace(/ /g, "-");
+
   const fileMetadata = {
-    name: newFileName,
+    name: fileNameWithoutSpace,
+    appProperties: {
+      formField,
+    },
   };
 
   const media = {

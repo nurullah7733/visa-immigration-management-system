@@ -12,8 +12,8 @@ const allowedTypes = [
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, "upload/");
-    // cb(null, os.tmpdir());  its for production mode
+    // cb(null, "upload/");
+    cb(null, os.tmpdir()); //its for production mode
   },
   filename: function (req, file, cb) {
     const ext = path.extname(file.originalname);
