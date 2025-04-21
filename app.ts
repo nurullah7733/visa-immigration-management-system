@@ -9,8 +9,11 @@ import helmet from "helmet";
 import hpp from "hpp";
 import { xss } from "express-xss-sanitizer";
 import cors from "cors";
+import { ensureTablesExist } from "./src/utils/supabase/supabaseSchemaSetup.js";
 
 const app = express();
+
+ensureTablesExist();
 
 // Security Middleware Implement
 app.use(
