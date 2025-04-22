@@ -4,18 +4,45 @@ import resendMail from "../../utils/resend/resendMail.js";
 
 // send invite controller
 export const sendInviteController = async (req: any, res: any) => {
-  const { email } = req.body;
+  const {
+    email,
+    case_type,
+    case_subtype,
+    case_owner_name,
+    case_owner_user_id,
+    case_owner_email,
+    current_status,
+    priority,
+    filing_type,
+    filing_deadline,
+    estimated_completion_date,
+  } = req.body;
   const token = crypto.randomBytes(12).toString("hex");
   const inviteLink = `${process.env.FRONTEND_URL}/invite?token=${token}`;
 
   try {
-    const inviteResult = await supabase
-      .from("invites")
-      .upsert({ email, token, status: "pending" }, { onConflict: "email" });
+    const inviteResult = await supabase.from("invites").upsert(
+      {
+        email,
+        token,
+        status: "pending",
+        case_type,
+        case_subtype,
+        case_owner_name,
+        case_owner_user_id,
+        case_owner_email,
+        current_status,
+        priority,
+        filing_type,
+        filing_deadline,
+        estimated_completion_date,
+      },
+      { onConflict: "email" }
+    );
 
     const emailHtml = `
       <p>Hey there!</p>
-      <p>You've been invited to join our document manager app. Click below to sign up:</p>
+      <p>You've been invited to join our Visa Immigration App. Click below to sign up:</p>
       <a href="${inviteLink}">Accept Invite</a>
     `;
 
