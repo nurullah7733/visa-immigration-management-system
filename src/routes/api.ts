@@ -21,6 +21,14 @@ import {
   createOrUpdateCaseInfoController,
   getCaseInfoController,
 } from "../controllers/caseInfoController/caseInfoController.js";
+import {
+  createOrUpdateEmploymentInfoController,
+  getEmploymentInfoController,
+} from "../controllers/employmentInfoController/employmentInfoController.js";
+import {
+  createOrUpdateEmployerInfoController,
+  getEmployerInfoController,
+} from "../controllers/employerInfoController/employerInfoController.js";
 
 // Invite Routes
 router.post("/send/invite", sendInviteController);
@@ -55,6 +63,20 @@ router.get("/get-personal-info/:userId", getPersonalInformationController);
 router.post(
   "/create-or-update-personal-info",
   createOrUpdatePersonalInformationController
+);
+
+// Employment information
+router.get("/get-employment-info/:userId", getEmploymentInfoController);
+router.post(
+  "/create-or-update-employment-info",
+  createOrUpdateEmploymentInfoController
+);
+
+// employer information
+router.get("/get-employer-info/:userId", getEmployerInfoController);
+router.post(
+  "/create-or-update-employer-info",
+  createOrUpdateEmployerInfoController
 );
 
 export default router;

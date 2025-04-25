@@ -69,61 +69,9 @@ export async function ensureTablesExist() {
     if (!personalInformationCheck.rows[0].to_regclass) {
       await client.query(`
         CREATE TABLE personal_information (
-           id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-
-           user_id UUID REFERENCES users(id) ON DELETE CASCADE UNIQUE,
-
-          -- Basic Information
-          first_name TEXT,
-          middle_name TEXT,
-          last_name TEXT,
-          used_other_names BOOLEAN DEFAULT FALSE,
-
-          -- Birth Information
-          date_of_birth DATE,
-          gender TEXT,
-          country_of_birth TEXT,
-          province_of_birth TEXT,
-          country_of_citizenship TEXT,
-
-          -- Immigration Status
-          currently_in_us BOOLEAN DEFAULT FALSE,
-          applied_for_us_visa BOOLEAN DEFAULT FALSE,
-
-          -- Identification
-          alien_registration_number TEXT,
-          social_security_number TEXT,
-
-          -- U.S. Entry Information
-          been_to_us BOOLEAN DEFAULT FALSE,
-
-          -- Passport Information
-          passport_number TEXT,
-          passport_issuing_country TEXT,
-          passport_issued_date DATE,
-          passport_expiry_date DATE,
-
-          -- Contact Information
-          has_us_address BOOLEAN DEFAULT FALSE,
-          us_address TEXT,
-          us_address_apt TEXT,
-          us_unit_type TEXT,
-          us_city TEXT,
-          us_state TEXT,
-          us_zip_code TEXT,
-
-          foreign_address TEXT,
-          foreign_apt TEXT,
-          foreign_unit_type TEXT,
-          foreign_city TEXT,
-          foreign_state_province TEXT,
-          foreign_postal_code TEXT,
-          foreign_country TEXT,
-          foreign_province TEXT,
-
-          phone_number TEXT,
-          email TEXT,
-
+          id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+          user_id UUID REFERENCES users(id) ON DELETE CASCADE UNIQUE,
+          meta jsonb, 
           created_at TIMESTAMPTZ DEFAULT now(),
           updated_at TIMESTAMPTZ DEFAULT now()
         );
@@ -137,34 +85,11 @@ export async function ensureTablesExist() {
     if (!employmentInformationCheck.rows[0].to_regclass) {
       await client.query(`
         CREATE TABLE employment_information (
-            id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-
-            user_id UUID REFERENCES users(id) ON DELETE CASCADE,
-
-            job_title TEXT NOT NULL,
-            company_name TEXT NOT NULL,
-            linkedin_profile_url TEXT, -- optional
-            job_ended BOOLEAN, -- optional
-
-            -- Work Address
-            work_city TEXT NOT NULL,
-            work_state_province TEXT NOT NULL,
-            work_country TEXT NOT NULL,
-
-            base_salary NUMERIC, -- optional
-            currency_salary TEXT, -- optional (e.g., USD, KWD)
-            pay_period TEXT, -- optional (e.g., monthly, weekly, annually)
-            hours_work_per_week INTEGER, -- optional
-
-            receive_any_bonuses BOOLEAN, -- optional
-            stock_option BOOLEAN, -- optional
-
-            benefit_receive TEXT, -- optional
-            compensation_not_mentioned_above TEXT, -- optional
-            describe_job_responsibilities TEXT NOT NULL,
-
-            created_at TIMESTAMPTZ DEFAULT now(),
-            updated_at TIMESTAMPTZ DEFAULT now()
+           id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+          user_id UUID REFERENCES users(id) ON DELETE CASCADE UNIQUE,
+          meta jsonb, 
+          created_at TIMESTAMPTZ DEFAULT now(),
+          updated_at TIMESTAMPTZ DEFAULT now()
         );
       `);
       console.log("✅ 'employment_information' table created.");
@@ -178,30 +103,8 @@ export async function ensureTablesExist() {
       await client.query(`
           CREATE TABLE employer_information (
           id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-
-          user_id UUID REFERENCES users(id) ON DELETE CASCADE,
-
-          company_name TEXT NOT NULL,
-          legal_name TEXT NOT NULL,
-          website TEXT NOT NULL,
-          phone_number TEXT NOT NULL,
-
-          gross_income NUMERIC NOT NULL,
-          net_income NUMERIC NOT NULL,
-
-          representative_name TEXT NOT NULL,
-          representative_email TEXT NOT NULL,
-          representative_phone TEXT NOT NULL,
-
-          hq_address TEXT NOT NULL,
-
-          company_headquarters_street_address TEXT,
-          company_headquarters_address TEXT,
-          company_headquarters_city TEXT, 
-          company_headquarters_state TEXT,
-          company_headquarters_zip_code TEXT,
-          company_headquarters_country TEXT, 
-
+          user_id UUID REFERENCES users(id) ON DELETE CASCADE UNIQUE,
+          meta jsonb, 
           created_at TIMESTAMPTZ DEFAULT now(),
           updated_at TIMESTAMPTZ DEFAULT now()
           );

@@ -1,12 +1,12 @@
 import supabase from "../../utils/supabase/supabaseClient.js";
 
-//  get  personal Information
-export const getPersonalInformationController = async (req: any, res: any) => {
+//  get  Employment Information
+export const getEmploymentInfoController = async (req: any, res: any) => {
   const userId = req.params.userId;
 
   try {
     const { data, error } = await supabase
-      .from("personal_information")
+      .from("employment_information")
       .select("*")
       .eq("user_id", userId);
 
@@ -24,8 +24,8 @@ export const getPersonalInformationController = async (req: any, res: any) => {
   }
 };
 
-// create personal Information
-export const createOrUpdatePersonalInformationController = async (
+// create Employment
+export const createOrUpdateEmploymentInfoController = async (
   req: any,
   res: any
 ) => {
@@ -33,7 +33,7 @@ export const createOrUpdatePersonalInformationController = async (
 
   try {
     const { data, error } = await supabase
-      .from("personal_information")
+      .from("employment_information")
       .upsert([{ user_id, meta }], { onConflict: "user_id" })
       .select();
 
