@@ -23,9 +23,9 @@ export const gDriveAllUsersFoldersListController = async (
 };
 // list files from google drive
 export const gDriveAUserFileListController = async (req: any, res: any) => {
-  const { folderId } = req.params;
+  const { folderId, pageSource } = req.query;
   try {
-    const listResult = await listFilesFromDrive(folderId);
+    const listResult = await listFilesFromDrive(folderId, pageSource);
     return res.status(200).json({ status: "success", data: listResult });
   } catch (error: any) {
     return res.status(400).json({ status: "fail", data: error?.errors });
@@ -35,7 +35,7 @@ export const gDriveAUserFileListController = async (req: any, res: any) => {
 // upload file to google drive
 export const gDriveFileUploadController = async (req: any, res: any) => {
   const file = req.file;
-  const { userEmail, formField } = req.body;
+  const { userEmail, formField, pageSource, approve, reject, note } = req.body;
 
   if (!file || !userEmail || !formField) {
     if (!file) {
@@ -75,7 +75,8 @@ export const gDriveFileUploadController = async (req: any, res: any) => {
       file.path,
       fileName,
       parentFolderId,
-      formField
+      formField,
+      pageSource
     );
 
     // Clean local temp file
@@ -84,9 +85,7 @@ export const gDriveFileUploadController = async (req: any, res: any) => {
     return res.status(200).json({
       status: "success",
       data: {
-        driveFileId: uploadedFile.id,
-        webViewLink: uploadedFile.webViewLink,
-        name: uploadedFile.name,
+        ...uploadedFile,
         formField,
         userEmail,
       },
@@ -97,50 +96,35 @@ export const gDriveFileUploadController = async (req: any, res: any) => {
   }
 };
 
-// update file to google drive
+// update/replace file to google drive
 export const gDriveFileUpdateController = async (req: any, res: any) => {
   const file = req.file;
-  const { fileId, formField } = req.body;
-
-  // newFileName
-
-  if (!file || !fileId || !formField) {
-    if (!file) {
-      return res.status(400).json({
-        status: "fail",
-        data: "Missing file",
-      });
-    } else if (!fileId) {
-      return res.status(400).json({
-        status: "fail",
-        data: "Missing fileId",
-      });
-    } else if (!formField) {
-      return res.status(400).json({
-        status: "fail",
-        data: "Missing formField",
-      });
-    } else {
-      return res.status(400).json({
-        status: "fail",
-        data: "Missing file, fileId info",
-      });
-    }
-  }
+  const { fileId, formField, pageSource, approve, reject, note } = req.body;
 
   try {
-    const newFileName = `${formField}_${file.originalname}`;
-    const newFilePath = file.path;
+    let newFileName;
+    let newFilePath;
+
+    if (file) {
+      newFileName = `${file.originalname}`;
+      newFilePath = file.path;
+    }
 
     const updatedFileResult = await updateFileToDrive(
       fileId,
       newFilePath,
       newFileName,
-      formField
+      formField,
+      pageSource,
+      approve,
+      reject,
+      note
     );
 
     // Clean local temp file
-    fs.unlinkSync(file.path);
+    if (file) {
+      fs.unlinkSync(file.path);
+    }
 
     return res.status(200).json({
       status: "success",

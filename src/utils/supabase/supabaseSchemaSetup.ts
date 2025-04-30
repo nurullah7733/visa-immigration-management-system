@@ -138,6 +138,23 @@ export async function ensureTablesExist() {
       `);
       console.log("✅ 'case_info' table created.");
     }
+    // Check and create 'evidences' table
+    const evidencesCheck = await client.query(`
+      SELECT to_regclass('public.evidences');
+    `);
+    if (!evidencesCheck.rows[0].to_regclass) {
+      await client.query(`
+        CREATE TABLE evidences (
+          id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+          user_id UUID REFERENCES users(id) ON DELETE CASCADE UNIQUE,
+          evidences jsonb, 
+          created_at TIMESTAMPTZ DEFAULT now(),
+          updated_at TIMESTAMPTZ DEFAULT now()
+        
+        );
+      `);
+      console.log("✅ 'evidences' table created.");
+    }
   } catch (err) {
     console.error("❌ Error checking/creating tables:", err);
   } finally {

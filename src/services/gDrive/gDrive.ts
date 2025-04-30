@@ -15,7 +15,8 @@ export const uploadToDrive = async (
   filePath: string,
   fileName: string,
   parentFolderId: string,
-  formField: string // e.g. 'resume', 'passport'
+  field: string, // e.g. 'press', 'awards', 'judging'
+  appProperties: Record<string, string> // ✅ Dynamic properties per file
 ) => {
   const mimeType = mime.lookup(filePath) || "application/octet-stream";
 
@@ -25,7 +26,8 @@ export const uploadToDrive = async (
     name: fileNameWithoutSpace,
     parents: [parentFolderId],
     appProperties: {
-      formField,
+      field, // ✅ Always include which field this file belongs to
+      ...appProperties, // ✅ Dynamically spread only the provided props
     },
   };
 
@@ -37,40 +39,91 @@ export const uploadToDrive = async (
   const response = await drive.files.create({
     requestBody: fileMetadata,
     media,
-    fields: "id, webViewLink, webContentLink, name, appProperties",
+    fields:
+      "id, webViewLink, webContentLink, name, appProperties, thumbnailLink, shared, mimeType",
   });
 
+  if (response.data.id) {
+    await drive.permissions.create({
+      fileId: response.data.id ?? "",
+      requestBody: {
+        role: "reader",
+        type: "anyone",
+      },
+    });
+  }
   return response.data;
 };
 
 // update file from google drive
 export const updateFileToDrive = async (
   fileId: string,
-  newFilePath: string,
-  newFileName: string,
-  formField: string // e.g. 'resume', 'passport'
+  newFilePath?: string,
+  newFileName?: string,
+  formField?: string,
+  pageSource?: string,
+  approve?: string,
+  reject?: string,
+  note?: string,
+  googleScholarLink?: string,
+  publishedInOtherLocationsUrl?: string,
+  describeYourJudgingExperience?: string,
+  DescribeYourCriticalRole?: string
 ) => {
-  const fileNameWithoutSpace = newFileName.replace(/ /g, "-");
-
-  const fileMetadata = {
-    name: fileNameWithoutSpace,
-    appProperties: {
-      formField,
-    },
-  };
-
-  const media = {
-    mimeType: "application/octet-stream",
-    body: fs.createReadStream(newFilePath),
-  };
-
-  const response = await drive.files.update({
+  const updateOptions: any = {
     fileId,
-    media,
-    requestBody: fileMetadata,
-    fields: "id, name, mimeType, webViewLink, webContentLink",
-  });
+    fields:
+      "id, webViewLink, webContentLink, name, appProperties, thumbnailLink, shared, mimeType",
+  };
 
+  // If there is any metadata to update
+  if (
+    newFileName ||
+    formField ||
+    pageSource ||
+    approve ||
+    reject ||
+    note ||
+    googleScholarLink ||
+    publishedInOtherLocationsUrl ||
+    describeYourJudgingExperience ||
+    DescribeYourCriticalRole
+  ) {
+    const fileNameWithoutSpace = newFileName
+      ? newFileName.replace(/ /g, "-")
+      : undefined;
+
+    updateOptions.requestBody = {
+      ...(fileNameWithoutSpace && { name: fileNameWithoutSpace }),
+      appProperties: {
+        ...(formField && { formField }),
+        ...(pageSource && { pageSource }),
+        ...(approve !== undefined && { approve }),
+        ...(reject !== undefined && { reject }),
+        ...(note !== undefined && { note }),
+        ...(googleScholarLink !== undefined && { googleScholarLink }),
+        ...(publishedInOtherLocationsUrl !== undefined && {
+          publishedInOtherLocationsUrl,
+        }),
+        ...(describeYourJudgingExperience !== undefined && {
+          describeYourJudgingExperience,
+        }),
+        ...(DescribeYourCriticalRole !== undefined && {
+          DescribeYourCriticalRole,
+        }),
+      },
+    };
+  }
+
+  // If there is a new file to upload
+  if (newFilePath) {
+    updateOptions.media = {
+      mimeType: "application/octet-stream",
+      body: fs.createReadStream(newFilePath),
+    };
+  }
+
+  const response = await drive.files.update(updateOptions);
   return response.data;
 };
 
@@ -84,16 +137,26 @@ export const deleteFileToDrive = async (fileId: string) => {
 };
 
 // list files from google drive
-export const listFilesFromDrive = async (parentFolderId: string) => {
+export const listFilesFromDrive = async (
+  parentFolderId: string,
+  pageSource?: string
+) => {
+  let query = `'${parentFolderId}' in parents and trashed = false`;
+
+  if (pageSource) {
+    query += ` and appProperties has { key='pageSource' and value='${pageSource}' }`;
+  }
+
   const response = await drive.files.list({
-    q: `'${parentFolderId}' in parents and trashed = false`,
+    q: query,
     fields:
-      "files(id, name, mimeType, webViewLink, webContentLink, appProperties)",
+      "files(id, webViewLink, webContentLink, name, appProperties, thumbnailLink, shared, mimeType)",
     spaces: "drive",
   });
 
-  return response.data.files;
+  return response.data.files || [];
 };
+
 // list all users folder from google drive
 export const listAllUsersFolder = async (parentFolderId: string) => {
   const response = await drive.files.list({

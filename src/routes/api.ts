@@ -12,7 +12,11 @@ import {
   gDriveFileUploadController,
   gDriveAllUsersFoldersListController,
 } from "../controllers/gDriveFileUploadController/gDriveFileUploadController.js";
-import { singleFileUpload } from "../middlewares/multerMiddleware.js";
+import {
+  singleFileUpload,
+  multipleFileUpload,
+  parseFormData,
+} from "../middlewares/multerMiddleware.js";
 import {
   createOrUpdatePersonalInformationController,
   getPersonalInformationController,
@@ -29,6 +33,7 @@ import {
   createOrUpdateEmployerInfoController,
   getEmployerInfoController,
 } from "../controllers/employerInfoController/employerInfoController.js";
+import { extraOrdinaryPagegDriveFileUploadController } from "../controllers/extraordinaryAvidenceController/extraOrdinaryAvidenceController.js";
 
 // Invite Routes
 router.post("/send/invite", sendInviteController);
@@ -50,7 +55,7 @@ router.post(
 // gdrive file delete routes
 router.get("/gdrive/file/delete/:fileId", gDriveFileDeleteController);
 // gdrive file list routes
-router.get("/gdrive/file/a-user-list/:folderId", gDriveAUserFileListController);
+router.get("/gdrive/file/a-user-list", gDriveAUserFileListController);
 // gdrive file list routes
 router.get("/gdrive/file/all-folder-list", gDriveAllUsersFoldersListController);
 
@@ -77,6 +82,13 @@ router.get("/get-employer-info/:userId", getEmployerInfoController);
 router.post(
   "/create-or-update-employer-info",
   createOrUpdateEmployerInfoController
+);
+
+// extraordinary evidence (get, delete, update same as gdrive)
+router.post(
+  "/upload-extra-ordinary-files",
+  parseFormData,
+  extraOrdinaryPagegDriveFileUploadController
 );
 
 export default router;
