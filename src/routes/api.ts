@@ -23,6 +23,7 @@ import {
 } from "../controllers/personalInformationController/personalInformationController.js";
 import {
   createOrUpdateCaseInfoController,
+  getAllCaseInfoController,
   getCaseInfoController,
 } from "../controllers/caseInfoController/caseInfoController.js";
 import {
@@ -34,6 +35,7 @@ import {
   getEmployerInfoController,
 } from "../controllers/employerInfoController/employerInfoController.js";
 import { extraOrdinaryPagegDriveFileUploadController } from "../controllers/extraordinaryAvidenceController/extraOrdinaryAvidenceController.js";
+import { updateUserEmailOrPasswordController } from "../controllers/userControllers/userController.js";
 
 // Invite Routes
 router.post("/send/invite", sendInviteController);
@@ -61,6 +63,7 @@ router.get("/gdrive/file/all-folder-list", gDriveAllUsersFoldersListController);
 
 // case info
 router.get("/get-case-info/:userId", getCaseInfoController);
+router.get("/get-all-case-info/", getAllCaseInfoController);
 router.post("/create-or-update-case-info", createOrUpdateCaseInfoController);
 
 // personal information
@@ -89,6 +92,12 @@ router.post(
   "/upload-extra-ordinary-files",
   parseFormData,
   extraOrdinaryPagegDriveFileUploadController
+);
+
+// users email and password update
+router.post(
+  "/update-user-email-or-password",
+  updateUserEmailOrPasswordController
 );
 
 export default router;

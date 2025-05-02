@@ -1,11 +1,4 @@
-import pg from "pg";
-
-const { Pool } = pg;
-
-const pool = new Pool({
-  connectionString: process.env.SUPABASE_DB_CONNECTION_STRING,
-  ssl: { rejectUnauthorized: false },
-});
+import pool from "./db.js";
 
 export async function ensureTablesExist() {
   const client = await pool.connect();
@@ -22,7 +15,6 @@ export async function ensureTablesExist() {
           email TEXT UNIQUE NOT NULL,
           token TEXT NOT NULL,
           status TEXT DEFAULT 'pending',
-
           case_owner_name TEXT,
           case_owner_user_id TEXT,
           case_owner_email TEXT,
@@ -31,9 +23,9 @@ export async function ensureTablesExist() {
           current_status TEXT,
           priority TEXT,
           filing_type TEXT,
+          notes TEXT,
           filing_deadline TIMESTAMP DEFAULT now(),
           estimated_completion_date TIMESTAMP DEFAULT now(),
-          
           created_at TIMESTAMP DEFAULT now()
         );
       `);
@@ -52,8 +44,9 @@ export async function ensureTablesExist() {
           name TEXT,
           full_name TEXT,
           first_name TEXT,
-          last_name TEXT,
-          password TEXT,
+          last_name TEXT, 
+          auth_id UUID UNIQUE NOT NULL,
+          auth_provider TEXT,
           role TEXT,
           avatar_url TEXT,
           created_at TIMESTAMP DEFAULT now()
@@ -130,10 +123,12 @@ export async function ensureTablesExist() {
           current_status TEXT,
           priority TEXT,
           filing_type TEXT,
+          notes TEXT,
           filing_deadline TIMESTAMP DEFAULT now(),
           estimated_completion_date TIMESTAMP DEFAULT now(),
           
-          created_at TIMESTAMP DEFAULT now()
+          created_at TIMESTAMP DEFAULT now(),
+          updated_at TIMESTAMPTZ DEFAULT now()
         );
       `);
       console.log("✅ 'case_info' table created.");

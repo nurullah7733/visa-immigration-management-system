@@ -14,6 +14,7 @@ export const sendInviteController = async (req: any, res: any) => {
     current_status,
     priority,
     filing_type,
+    notes,
     filing_deadline,
     estimated_completion_date,
   } = req.body;
@@ -33,6 +34,7 @@ export const sendInviteController = async (req: any, res: any) => {
         case_owner_email,
         current_status,
         priority,
+        notes,
         filing_type,
         filing_deadline,
         estimated_completion_date,
