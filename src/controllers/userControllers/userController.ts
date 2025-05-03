@@ -1,5 +1,6 @@
 import pool from "../../utils/supabase/db.js";
 import adminSupabase from "../../utils/supabase/supabaseAdmin.js";
+import supabase from "../../utils/supabase/supabaseClient.js";
 
 export const updateUserEmailOrPasswordController = async (
   req: any,
@@ -60,6 +61,42 @@ export const updateUserEmailOrPasswordController = async (
     return res
       .status(200)
       .json({ status: "success", data: "User updated successfully." });
+  } catch (err: any) {
+    return res.status(400).json({ status: "fail", data: err.message });
+  }
+};
+
+export const deleteUser = async (req: any, res: any) => {
+  const { userId } = req.params;
+
+  try {
+    const { data: findUser, error: findUserError } = await supabase
+      .from("users")
+      .select("*")
+      .eq("id", userId);
+
+    if (!findUser || findUserError) {
+      return res.status(404).json({ status: "fail", data: "User not found" });
+    }
+
+    const auth_id = findUser[0]?.auth_id;
+
+    if (!auth_id) {
+      return res.status(400).json({
+        status: "fail",
+        data: "User does not have a valid auth_id linked to Supabase Auth",
+      });
+    }
+
+    const { error } = await adminSupabase.auth.admin.deleteUser(auth_id);
+    if (error) {
+      return res.status(400).json({ status: "fail", data: error.message });
+    }
+    await pool.query(`DELETE FROM users WHERE id = $1`, [userId]);
+    await pool.query(`DELETE FROM invites WHERE email = $1`, [
+      findUser[0]?.email,
+    ]);
+    return res.status(200).json({ status: "success", data: "User deleted!" });
   } catch (err: any) {
     return res.status(400).json({ status: "fail", data: err.message });
   }

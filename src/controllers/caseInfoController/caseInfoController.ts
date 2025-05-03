@@ -5,10 +5,26 @@ export const getCaseInfoController = async (req: any, res: any) => {
   const userId = req.params.userId;
 
   try {
+    const { data: clientUsers, error: userError } = await supabase
+      .from("users")
+      .select("id")
+      .eq("role", "client");
+
+    if (userError) {
+      console.error("User fetch error:", userError.message);
+      return res.status(500).json({ error: "Failed to fetch client users" });
+    }
+
     const { data, error } = await supabase
       .from("case_info")
-      .select("*")
-      .eq("user_id", userId);
+      .select(
+        `*, users(id, name, email, first_name, last_name, full_name, avatar_url, created_at)`
+      )
+      .eq("user_id", userId)
+      .in(
+        "user_id",
+        clientUsers.map((user: any) => user.id)
+      );
 
     if (error == null) {
       return res.status(200).json({
@@ -27,7 +43,20 @@ export const getCaseInfoController = async (req: any, res: any) => {
 //  get all users caseInfo Information
 export const getAllCaseInfoController = async (req: any, res: any) => {
   try {
-    const { data, error } = await supabase.from("case_info").select(`
+    const { data: clientUsers, error: userError } = await supabase
+      .from("users")
+      .select("id")
+      .eq("role", "client");
+
+    if (userError) {
+      console.error("User fetch error:", userError.message);
+      return res.status(500).json({ error: "Failed to fetch client users" });
+    }
+
+    const { data, error } = await supabase
+      .from("case_info")
+      .select(
+        `
       *,
       users (
       id,
@@ -39,7 +68,12 @@ export const getAllCaseInfoController = async (req: any, res: any) => {
       avatar_url,
       created_at
       )
-    `);
+    `
+      )
+      .in(
+        "user_id",
+        clientUsers.map((user: any) => user.id)
+      );
 
     if (error == null) {
       return res.status(200).json({

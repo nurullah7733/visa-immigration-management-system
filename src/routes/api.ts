@@ -35,7 +35,10 @@ import {
   getEmployerInfoController,
 } from "../controllers/employerInfoController/employerInfoController.js";
 import { extraOrdinaryPagegDriveFileUploadController } from "../controllers/extraordinaryAvidenceController/extraOrdinaryAvidenceController.js";
-import { updateUserEmailOrPasswordController } from "../controllers/userControllers/userController.js";
+import {
+  deleteUser,
+  updateUserEmailOrPasswordController,
+} from "../controllers/userControllers/userController.js";
 
 // Invite Routes
 router.post("/send/invite", sendInviteController);
@@ -99,5 +102,7 @@ router.post(
   "/update-user-email-or-password",
   updateUserEmailOrPasswordController
 );
+// delete users
+router.get("/delete-user/:userId", deleteUser);
 
 export default router;
