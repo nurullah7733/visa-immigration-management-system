@@ -170,8 +170,7 @@ export const listAllUsersFolder = async (parentFolderId: string) => {
 
 // get or create folder
 export const getOrCreateFolder = async (email: string) => {
-  const CENTRAL_FOLDER_ID = "1AHQi54p4AZchw1Bndp6BDw2bk5wfzQUR";
-  //   const CENTRAL_FOLDER_ID = process.env.CENTRAL_FOLDER_ID;
+  const CENTRAL_FOLDER_ID = process.env.CENTRAL_FOLDER_ID;
 
   if (!CENTRAL_FOLDER_ID) {
     console.log("Missing CENTRAL_FOLDER_ID");

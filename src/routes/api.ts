@@ -11,6 +11,7 @@ import {
   gDriveFileUpdateController,
   gDriveFileUploadController,
   gDriveAllUsersFoldersListController,
+  gDriveAUserFileListByUserEmailController,
 } from "../controllers/gDriveFileUploadController/gDriveFileUploadController.js";
 import {
   singleFileUpload,
@@ -59,8 +60,13 @@ router.post(
 );
 // gdrive file delete routes
 router.get("/gdrive/file/delete/:fileId", gDriveFileDeleteController);
-// gdrive file list routes
+// gdrive a user file list by folderId routes
 router.get("/gdrive/file/a-user-list", gDriveAUserFileListController);
+// gdrive a user file list by userEmail routes
+router.get(
+  "/gdrive/file/a-user-list-by-email",
+  gDriveAUserFileListByUserEmailController
+);
 // gdrive file list routes
 router.get("/gdrive/file/all-folder-list", gDriveAllUsersFoldersListController);
 

@@ -63,7 +63,6 @@ export const sendInviteController = async (req: any, res: any) => {
       }
 
       if (inviteResult.error) {
-        console.log(inviteResult);
         return res.status(400).json({ status: "fail", data: { inviteResult } });
       }
     }

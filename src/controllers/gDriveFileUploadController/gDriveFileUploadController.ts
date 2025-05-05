@@ -21,10 +21,28 @@ export const gDriveAllUsersFoldersListController = async (
     return res.status(400).json({ status: "fail", data: error?.errors });
   }
 };
-// list files from google drive
+
+// list files from google drive using (direct folderId)
 export const gDriveAUserFileListController = async (req: any, res: any) => {
   const { folderId, pageSource } = req.query;
   try {
+    const listResult = await listFilesFromDrive(folderId, pageSource);
+    return res.status(200).json({ status: "success", data: listResult });
+  } catch (error: any) {
+    return res.status(400).json({ status: "fail", data: error?.errors });
+  }
+};
+
+// list files from google drive using (direct userId)
+export const gDriveAUserFileListByUserEmailController = async (
+  req: any,
+  res: any
+) => {
+  const { userEmail, pageSource } = req.query;
+  try {
+    const folderId = await getOrCreateFolder(userEmail);
+    if (!folderId)
+      return res.status(400).json({ status: "fail", data: "Folder not found" });
     const listResult = await listFilesFromDrive(folderId, pageSource);
     return res.status(200).json({ status: "success", data: listResult });
   } catch (error: any) {
