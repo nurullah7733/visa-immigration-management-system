@@ -33,7 +33,7 @@ export const gDriveAUserFileListController = async (req: any, res: any) => {
   }
 };
 
-// list files from google drive using (direct userId)
+// list files from google drive using (direct userEmail)
 export const gDriveAUserFileListByUserEmailController = async (
   req: any,
   res: any
@@ -89,12 +89,33 @@ export const gDriveFileUploadController = async (req: any, res: any) => {
         .json({ status: "fail", data: "parentFolderId create or find failed" });
     }
 
+    const appProperties: Record<string, string> = {};
+
+    if (userEmail) {
+      appProperties["userEmail"] = userEmail;
+    }
+    if (approve) {
+      appProperties["approve"] = approve;
+    }
+    if (reject) {
+      appProperties["reject"] = reject;
+    }
+    if (note) {
+      appProperties["note"] = note;
+    }
+    if (formField) {
+      appProperties["formField"] = formField;
+    }
+    if (pageSource) {
+      appProperties["pageSource"] = pageSource;
+    }
+
     const uploadedFile = await uploadToDrive(
       file.path,
       fileName,
       parentFolderId,
       formField,
-      pageSource
+      appProperties
     );
 
     // Clean local temp file

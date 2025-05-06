@@ -16,7 +16,7 @@ export const uploadToDrive = async (
   fileName: string,
   parentFolderId: string,
   field: string, // e.g. 'press', 'awards', 'judging'
-  appProperties: Record<string, string> // ✅ Dynamic properties per file
+  appProperties: Record<string, string> // Dynamic properties per file
 ) => {
   const mimeType = mime.lookup(filePath) || "application/octet-stream";
 
@@ -26,8 +26,8 @@ export const uploadToDrive = async (
     name: fileNameWithoutSpace,
     parents: [parentFolderId],
     appProperties: {
-      field, // ✅ Always include which field this file belongs to
-      ...appProperties, // ✅ Dynamically spread only the provided props
+      field,
+      ...appProperties,
     },
   };
 

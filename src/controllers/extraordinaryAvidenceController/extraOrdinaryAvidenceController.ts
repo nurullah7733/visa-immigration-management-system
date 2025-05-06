@@ -100,7 +100,7 @@ export const extraOrdinaryPagegDriveFileUploadController: RequestHandler =
         status: "success",
         data: uploadedFiles,
       });
-      return; // 👈 TypeScript happy now (void)
+      return;
     } catch (error: any) {
       console.error("extra ordinary page Upload error:", error);
       res.status(400).json({ status: "fail", data: error?.message });
