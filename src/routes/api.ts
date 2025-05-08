@@ -38,6 +38,7 @@ import {
 import { extraOrdinaryPagegDriveFileUploadController } from "../controllers/extraordinaryAvidenceController/extraOrdinaryAvidenceController.js";
 import {
   deleteUser,
+  getUserInfoController,
   updateUserEmailOrPasswordController,
 } from "../controllers/userControllers/userController.js";
 
@@ -110,5 +111,6 @@ router.post(
 );
 // delete users
 router.get("/delete-user/:userId", deleteUser);
+router.get("/get-user-info/:userId", getUserInfoController);
 
 export default router;

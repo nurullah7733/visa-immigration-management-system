@@ -53,7 +53,7 @@ export const gDriveAUserFileListByUserEmailController = async (
 // upload file to google drive
 export const gDriveFileUploadController = async (req: any, res: any) => {
   const file = req.file;
-  const { userEmail, formField, pageSource, approve, reject, note } = req.body;
+  const { userEmail, formField, pageSource, status, note } = req.body;
 
   if (!file || !userEmail || !formField) {
     if (!file) {
@@ -94,11 +94,11 @@ export const gDriveFileUploadController = async (req: any, res: any) => {
     if (userEmail) {
       appProperties["userEmail"] = userEmail;
     }
-    if (approve) {
-      appProperties["approve"] = approve;
-    }
-    if (reject) {
-      appProperties["reject"] = reject;
+
+    if (status) {
+      appProperties["status"] = status;
+    } else {
+      appProperties["status"] = "Pending";
     }
     if (note) {
       appProperties["note"] = note;
@@ -138,7 +138,21 @@ export const gDriveFileUploadController = async (req: any, res: any) => {
 // update/replace file to google drive
 export const gDriveFileUpdateController = async (req: any, res: any) => {
   const file = req.file;
-  const { fileId, formField, pageSource, approve, reject, note } = req.body;
+  const {
+    fileId,
+    userEmail,
+    formField,
+    pageSource,
+    Approved,
+    Pending,
+    Rejected,
+    status,
+    note,
+    googleScholarLink,
+    publishedInOtherLocationsUrl,
+    describeYourJudgingExperience,
+    DescribeYourCriticalRole,
+  } = req.body;
 
   try {
     let newFileName;
@@ -149,16 +163,19 @@ export const gDriveFileUpdateController = async (req: any, res: any) => {
       newFilePath = file.path;
     }
 
-    const updatedFileResult = await updateFileToDrive(
+    const updatedFileResult = await updateFileToDrive({
       fileId,
       newFilePath,
       newFileName,
       formField,
       pageSource,
-      approve,
-      reject,
-      note
-    );
+      status,
+      note,
+      googleScholarLink,
+      publishedInOtherLocationsUrl,
+      describeYourJudgingExperience,
+      DescribeYourCriticalRole,
+    });
 
     // Clean local temp file
     if (file) {

@@ -56,70 +56,57 @@ export const uploadToDrive = async (
 };
 
 // update file from google drive
-export const updateFileToDrive = async (
-  fileId: string,
-  newFilePath?: string,
-  newFileName?: string,
-  formField?: string,
-  pageSource?: string,
-  approve?: string,
-  reject?: string,
-  note?: string,
-  googleScholarLink?: string,
-  publishedInOtherLocationsUrl?: string,
-  describeYourJudgingExperience?: string,
-  DescribeYourCriticalRole?: string
-) => {
+export const updateFileToDrive = async (data: any) => {
   const updateOptions: any = {
-    fileId,
+    fileId: data["fileId"],
     fields:
       "id, webViewLink, webContentLink, name, appProperties, thumbnailLink, shared, mimeType",
   };
 
   // If there is any metadata to update
   if (
-    newFileName ||
-    formField ||
-    pageSource ||
-    approve ||
-    reject ||
-    note ||
-    googleScholarLink ||
-    publishedInOtherLocationsUrl ||
-    describeYourJudgingExperience ||
-    DescribeYourCriticalRole
+    data?.newFileName ||
+    data?.formField ||
+    data?.pageSource ||
+    data?.status ||
+    data?.note ||
+    data?.googleScholarLink ||
+    data?.publishedInOtherLocationsUrl ||
+    data?.describeYourJudgingExperience ||
+    data?.DescribeYourCriticalRole
   ) {
-    const fileNameWithoutSpace = newFileName
-      ? newFileName.replace(/ /g, "-")
+    const fileNameWithoutSpace = data?.newFileName
+      ? data?.newFileName.replace(/ /g, "-")
       : undefined;
 
     updateOptions.requestBody = {
       ...(fileNameWithoutSpace && { name: fileNameWithoutSpace }),
       appProperties: {
-        ...(formField && { formField }),
-        ...(pageSource && { pageSource }),
-        ...(approve !== undefined && { approve }),
-        ...(reject !== undefined && { reject }),
-        ...(note !== undefined && { note }),
-        ...(googleScholarLink !== undefined && { googleScholarLink }),
-        ...(publishedInOtherLocationsUrl !== undefined && {
-          publishedInOtherLocationsUrl,
+        ...(data?.formField && { formField: data?.formField }),
+        ...(data?.pageSource && { pageSource: data?.pageSource }),
+        ...(data?.status !== undefined && { status: data?.status }),
+        ...(data?.note !== undefined && { note: data?.note }),
+        ...(data?.googleScholarLink !== undefined && {
+          googleScholarLink: data?.googleScholarLink,
         }),
-        ...(describeYourJudgingExperience !== undefined && {
-          describeYourJudgingExperience,
+        ...(data?.publishedInOtherLocationsUrl !== undefined && {
+          publishedInOtherLocationsUrl: data?.publishedInOtherLocationsUrl,
         }),
-        ...(DescribeYourCriticalRole !== undefined && {
-          DescribeYourCriticalRole,
+        ...(data?.describeYourJudgingExperience !== undefined && {
+          describeYourJudgingExperience: data?.describeYourJudgingExperience,
+        }),
+        ...(data?.DescribeYourCriticalRole !== undefined && {
+          DescribeYourCriticalRole: data?.DescribeYourCriticalRole,
         }),
       },
     };
   }
 
   // If there is a new file to upload
-  if (newFilePath) {
+  if (data?.newFilePath) {
     updateOptions.media = {
       mimeType: "application/octet-stream",
-      body: fs.createReadStream(newFilePath),
+      body: fs.createReadStream(data?.newFilePath),
     };
   }
 

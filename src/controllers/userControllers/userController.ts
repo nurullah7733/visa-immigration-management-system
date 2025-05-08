@@ -101,3 +101,24 @@ export const deleteUser = async (req: any, res: any) => {
     return res.status(400).json({ status: "fail", data: err.message });
   }
 };
+
+export const getUserInfoController = async (req: any, res: any) => {
+  const userId = req.params.userId;
+  try {
+    const { data, error } = await supabase
+      .from("users")
+      .select("*")
+      .eq("id", userId);
+    if (error == null) {
+      return res.status(200).json({
+        status: "success",
+        data: data,
+      });
+    } else {
+      return res.status(400).json({ status: "fail", data: error?.message });
+    }
+  } catch (error) {
+    console.log(error);
+    return res.status(400).json({ status: "fail", data: error });
+  }
+};
