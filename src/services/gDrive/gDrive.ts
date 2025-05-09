@@ -1,10 +1,32 @@
-// src/services/gDriveService.ts
 import { google } from "googleapis";
 import fs from "fs";
-import mime from "mime-types"; // 👈 install this package for dynamic mime
+import mime from "mime-types";
+
+interface ServiceAccount {
+  private_key: string;
+}
+
+let serviceAccount: ServiceAccount = {
+  private_key: "",
+};
+try {
+  serviceAccount = JSON.parse(
+    process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON || "{}"
+  );
+
+  if (serviceAccount.private_key) {
+    serviceAccount.private_key = serviceAccount.private_key.replace(
+      /\\n/g,
+      "\n"
+    );
+  }
+} catch (error) {
+  console.error("Invalid GOOGLE_APPLICATION_CREDENTIALS_JSON in .env");
+  process.exit(1);
+}
 
 const auth = new google.auth.GoogleAuth({
-  keyFile: "bismillah-db2c4-37b6e207da79.json",
+  credentials: serviceAccount,
   scopes: ["https://www.googleapis.com/auth/drive"],
 });
 

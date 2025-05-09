@@ -8,7 +8,7 @@ import {
 } from "../../services/gDrive/gDrive.js";
 import fs from "fs";
 
-// list files from google drive
+// list folder from google drive
 export const gDriveAllUsersFoldersListController = async (
   req: any,
   res: any
@@ -18,6 +18,7 @@ export const gDriveAllUsersFoldersListController = async (
     const listResult = await listAllUsersFolder(folderId);
     return res.status(200).json({ status: "success", data: listResult });
   } catch (error: any) {
+    console.log(error);
     return res.status(400).json({ status: "fail", data: error?.errors });
   }
 };
