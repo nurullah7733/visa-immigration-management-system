@@ -41,6 +41,7 @@ import {
   getUserInfoController,
   updateUserEmailOrPasswordController,
 } from "../controllers/userControllers/userController.js";
+import { generatePDFController } from "../controllers/generatePdfController/generatePdfController.js";
 
 // Invite Routes
 router.post("/send/invite", sendInviteController);
@@ -112,5 +113,7 @@ router.post(
 // delete users
 router.get("/delete-user/:userId", deleteUser);
 router.get("/get-user-info/:userId", getUserInfoController);
+
+router.post("/generate-arranged-pdf", generatePDFController);
 
 export default router;
